@@ -132,4 +132,35 @@ describe RuboCop::Cop::Metrics::BlockLength, :config do
       expect(cop.offenses).to be_empty
     end
   end
+
+  fcontext 'when Foo.bar class method is excluded is enabled' do
+    before { cop_config['ExcludedMethods'] = ['Foo.bar'] }
+
+    it 'still rejects other methods with long blocks' do
+      inspect_source(cop, ['something do',
+                           '  a = 1',
+                           '  a = 2',
+                           '  a = 3',
+                           'end'])
+      expect(cop.offenses).not_to be_empty
+    end
+
+    it 'accepts the Foo.bar method with a long block' do
+      inspect_source(cop, ['Foo.bar do',
+                           '  a = 1',
+                           '  a = 2',
+                           '  a = 3',
+                           'end'])
+      expect(cop.offenses).to be_empty
+    end
+
+    it 'rejects the Baz.bar method with a long block' do
+      inspect_source(cop, ['Baz.bar do',
+                           '  a = 1',
+                           '  a = 2',
+                           '  a = 3',
+                           'end'])
+      expect(cop.offenses).not_to be_empty
+    end
+  end
 end

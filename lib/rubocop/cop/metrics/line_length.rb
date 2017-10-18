@@ -23,7 +23,7 @@ module RuboCop
         private
 
         def check_line(line, index, heredocs)
-          return if line.length <= max
+          return if line.length <= warn_max
           return if ignored_line?(line, index, heredocs)
 
           if ignore_cop_directives? && directive_on_source_line?(index)
@@ -33,7 +33,8 @@ module RuboCop
 
           register_offense(
             source_range(processed_source.buffer, index + 1, 0...line.length),
-            line
+            line,
+            line.length
           )
         end
 
@@ -42,10 +43,11 @@ module RuboCop
             heredocs && line_in_whitelisted_heredoc?(heredocs, index.succ)
         end
 
-        def register_offense(loc, line)
+        def register_offense(loc, line, line_length)
           message = format(MSG, line.length, max)
 
-          add_offense(nil, location: loc, message: message) do
+          severity = (line_length <= max) ? :refactor : :warning
+          add_offense(nil, location: loc, message: message, severity: severity) do
             self.max = line.length
           end
         end
@@ -63,6 +65,10 @@ module RuboCop
 
         def max
           cop_config['Max']
+        end
+
+        def warn_max
+          cop_config['WarnMax']
         end
 
         def allow_heredoc?

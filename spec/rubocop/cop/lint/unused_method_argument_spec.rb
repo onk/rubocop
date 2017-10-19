@@ -508,4 +508,68 @@ describe RuboCop::Cop::Lint::UnusedMethodArgument, :config do
       RUBY
     end
   end
+
+  context 'when IgnoreRaiseNotImplementedError config parameter is set' do
+    let(:cop_config) { { 'IgnoreRaiseNotImplementedError' => true } }
+
+    it 'accepts an only raise method with a single unused parameter' do
+      expect_no_offenses(<<-RUBY.strip_indent)
+        def method(arg)
+          raise NotImplementedError
+        end
+      RUBY
+    end
+
+    it 'accepts an only raise with message method with a single unused ' \
+        'parameter' do
+      expect_no_offenses(<<-RUBY.strip_indent)
+        def method(arg)
+          raise NotImplementedError, "msg"
+        end
+      RUBY
+    end
+
+    it 'accepts an only raise with initializer method with a single unused ' \
+        'parameter' do
+      expect_no_offenses(<<-RUBY.strip_indent)
+        def method(arg)
+          raise NotImplementedError.new("msg")
+        end
+      RUBY
+    end
+
+    it 'registers an offense for a non-raise method with a single unused ' \
+        'parameter' do
+
+      message = "Unused method argument - `arg`. If it's necessary, use " \
+                  '`_` or `_arg` as an argument name to indicate that it ' \
+                  "won't be used. You can also write as `method(*)` if you " \
+                  "want the method to accept any arguments but don't care " \
+                  'about them.'
+
+      expect_offense(<<-RUBY.strip_indent)
+        def method(arg)
+                   ^^^ #{message}
+          1
+        end
+      RUBY
+    end
+
+    it 'accepts an only raise singleton method with a single unused ' \
+        'parameter' do
+      expect_no_offenses(<<-RUBY.strip_indent)
+        def self.method(unused)
+          raise NotImplementedError
+        end
+      RUBY
+    end
+
+    it 'accepts an only raise method with multiple unused parameters' do
+      expect_no_offenses(<<-RUBY.strip_indent)
+        def method(a, b, *others)
+          raise NotImplementedError
+        end
+      RUBY
+    end
+  end
 end

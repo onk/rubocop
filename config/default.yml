@@ -1465,6 +1465,7 @@ Lint/UnusedBlockArgument:
 Lint/UnusedMethodArgument:
   AllowUnusedKeywordArguments: false
   IgnoreEmptyMethods: true
+  IgnoreRaiseNotImplementedError: true
 
 #################### Performance ###########################
 

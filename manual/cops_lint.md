@@ -2091,6 +2091,17 @@ end
 def some_method(used, _unused, _unused_but_allowed)
   puts used
 end
+
+# good
+
+def some_method(unused)
+end
+
+# good
+
+def some_method(unused)
+  raise NotImplementedError
+end
 ```
 
 ### Important attributes
@@ -2099,6 +2110,7 @@ Attribute | Value
 --- | ---
 AllowUnusedKeywordArguments | false
 IgnoreEmptyMethods | true
+IgnoreRaiseNotImplementedError | true
 
 ### References
 

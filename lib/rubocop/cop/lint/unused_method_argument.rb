@@ -20,8 +20,27 @@ module RuboCop
       #   def some_method(used, _unused, _unused_but_allowed)
       #     puts used
       #   end
+      #
+      #   # good
+      #
+      #   def some_method(unused)
+      #   end
+      #
+      #   # good
+      #
+      #   def some_method(unused)
+      #     raise NotImplementedError
+      #   end
       class UnusedMethodArgument < Cop
         include UnusedArgument
+
+        def_node_matcher :error, <<-PATTERN
+          (const nil? :NotImplementedError)
+        PATTERN
+
+        def_node_matcher :raise_not_implemented_error?, <<-PATTERN
+          (send nil? {:raise :fail} {#error (send #error :new ...)} ...)
+        PATTERN
 
         def check_argument(variable)
           return unless variable.method_argument?
@@ -32,6 +51,11 @@ module RuboCop
             body = variable.scope.node.body
 
             return if body.nil?
+          end
+
+          if cop_config['IgnoreRaiseNotImplementedError']
+            body = variable.scope.node.body
+            return if raise_not_implemented_error?(body)
           end
 
           super

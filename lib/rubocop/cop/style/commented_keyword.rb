@@ -58,7 +58,18 @@ module RuboCop
 
         def offensive?(line)
           KEYWORDS.any? { |k| line =~ /^\s*#{k}\s+.*#/ } &&
-            ALLOWED_COMMENTS.none? { |c| line =~ /#\s*#{c}/ }
+            ALLOWED_COMMENTS.none? { |c| line =~ /#\s*#{c}/ } &&
+            !all_sharp_in_body_string_literal?(line)
+        end
+
+        def all_sharp_in_body_string_literal?(line)
+          sharp_positions = (0...line.length).select { |i| line[i, 1] == '#' }
+          dstr_pos_ranges = parse(line).ast.each_child_node(:dstr).map do |node|
+            node.source_range.begin_pos..node.source_range.end_pos
+          end
+          sharp_positions.all? do |pos|
+            dstr_pos_ranges.any? { |range| range.cover?(pos) }
+          end
         end
 
         def message(node)

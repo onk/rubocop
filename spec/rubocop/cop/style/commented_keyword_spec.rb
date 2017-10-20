@@ -127,6 +127,12 @@ describe RuboCop::Cop::Style::CommentedKeyword do
         def # not a comment
       HEREDOC
     RUBY
+    expect_no_offenses(<<-'RUBY'.strip_indent)
+      def foo; "#{bar}/#{baz}"; end
+    RUBY
+    expect_no_offenses(<<-'RUBY'.strip_indent)
+      def foo(bar = "#{baz}"); end
+    RUBY
   end
 
   it 'does not register an offense for certain comments' do

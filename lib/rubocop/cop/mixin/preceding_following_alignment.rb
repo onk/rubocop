@@ -82,7 +82,8 @@ module RuboCop
       end
 
       def aligned_identical?(range, line)
-        range.source == line[range.column, range.size]
+        adjust = Unicode::DisplayWidth.of(line[0, range.column]) - range.column
+        range.source == line[range.column - adjust, range.size]
       end
     end
   end

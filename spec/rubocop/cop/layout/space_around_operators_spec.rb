@@ -654,6 +654,17 @@ describe RuboCop::Cop::Layout::SpaceAroundOperators do
       expect(cop.offenses.empty?).to be(true)
     end
 
+    it 'accepts for a hash rocket with an extra space for alignment' \
+      'on multiple line with unicode fullwidth key' do
+      inspect_source(<<-RUBY.strip_indent)
+        {
+          "abc"  => 2,
+          "山川" => 3
+        }
+      RUBY
+      expect(cop.offenses.empty?).to be(true)
+    end
+
     context 'when does not allowed for alignment' do
       let(:allow_for_alignment) { false }
 
